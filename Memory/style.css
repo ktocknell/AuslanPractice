@@ -8,7 +8,63 @@ body {
   justify-content: space-between;
   padding: 10px 20px;
 }
+#topic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 2fr));
+  gap: 20px;
+  padding: 20px;
+  max-width: 800px;
+  width: 90vw;
+  margin: 20px auto;
+  box-sizing: border-box;
+}
 
+.topic-item {
+  display: flex;
+  width: 16vw;
+  height: auto;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.topic-item:hover {
+  transform: scale(1.05);
+}
+
+.topic-item img {
+  width: 100%;
+  min-width: 14vw;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Headings */
+h1 {
+  font-size: 2rem;
+  color: white;
+  margin-top: 40px;
+  text-align: center;
+}
+
+h2#levelTitle {
+  margin-top: 100px;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: center;
+  color: white;
+}
 #game-board {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
