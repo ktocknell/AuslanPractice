@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Memory Match – Topics</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<h1>Choose a Topic</h1>
+
+<div class="topic-grid">
+  <button onclick="startGame('animals')">Animals</button>
+  <button onclick="startGame('food')">Food</button>
+  <button onclick="startGame('school')">School</button>
+</div>
+
+<script>
+  function startGame(topic) {
+    localStorage.setItem("memoryTopic", topic);
+    window.location.href = "game.html";
+  }
+</script>
+
+</body>
+</html>
