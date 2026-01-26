@@ -216,7 +216,7 @@
           scoreDisplay.textContent = `Score: ${score}`;
           try { clearInterval(Number(balloon.dataset.floatInterval)); } catch(e){}
           moveToCollected(balloon);
-          animateMrsC();
+          animateMsT();
           if (score % 10 === 0 && level < 12) {
             level++;
             levelDisplay.textContent = `Level: ${level}`;
