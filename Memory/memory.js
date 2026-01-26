@@ -1,102 +1,161 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ==== STUDENT INFO ====
+  /* ===============================
+     STUDENT + TOPIC
+  =============================== */
   const studentName = localStorage.getItem("studentName") || "Unknown";
   const studentClass = localStorage.getItem("studentClass") || "Unknown";
+  const topic = localStorage.getItem("memoryTopic");
+
+  if (!topic) {
+    window.location.href = "hub.html";
+    return;
+  }
+
   document.getElementById("student-info").innerText =
     `${studentName} (${studentClass})`;
 
-  // ==== TOPIC DATA ====
-  const topic = localStorage.getItem("memoryTopic");
-  if (!topic) location.href = "hub.html";
-
+  /* ===============================
+     VOCAB DATA
+  =============================== */
   const vocab = {
     animals: ["cat","dog","cow","horse","bird","fish","duck","pig","sheep","lion","bear","frog","snake","mouse","rabbit","tiger","goat","ant","bee","owl"],
-    food: ["apple","banana","bread","milk","cheese","rice","egg","cake","pizza","carrot","corn","fish","meat","soup","orange","pear","icecream","water","chicken","chips"],
-    school: ["book","pen","pencil","bag","desk","chair","teacher","student","school","bus","bell","ruler","paper","glue","scissors","computer","ipad","board","class","library"]
+    colours: ["red","blue","green","yellow","orange","purple","pink","brown","black","white"],
+    school: ["book","pen","pencil","bag","desk","chair","teacher","student","school","bus","bell","ruler","paper","glue","scissors","computer","ipad","board","class","library"],
+    numbers: ["one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen"]
   };
 
-  const selected = shuffle([...vocab[topic]]).slice(0, 15);
+  /* ===============================
+     GAME SETUP
+  =============================== */
+  const words = shuffle([...vocab[topic]]).slice(0, 15);
 
-  // ==== CREATE TILE SET ====
   let tiles = [];
-  selected.forEach(word => {
+  words.forEach(word => {
     tiles.push({ word, type: "sign" });
     tiles.push({ word, type: "image" });
   });
-
   tiles = shuffle(tiles);
 
-  // ==== GAME STATE ====
   const board = document.getElementById("game-board");
-  let firstTile = null;
+
+  let firstCard = null;
   let lockBoard = false;
   let matches = 0;
   let attempts = 0;
 
   const startTime = Date.now();
 
-  // ==== TIMER ====
+  /* ===============================
+     FEEDBACK IMAGE
+  =============================== */
+  const feedback = document.createElement("img");
+  feedback.id = "feedbackImage";
+  feedback.style.position = "fixed";
+  feedback.style.top = "50%";
+  feedback.style.left = "50%";
+  feedback.style.transform = "translate(-50%, -50%)";
+  feedback.style.width = "220px";
+  feedback.style.display = "none";
+  feedback.style.zIndex = "9999";
+  document.body.appendChild(feedback);
+
+  function showFeedback(correct) {
+    feedback.src = correct ? "assets/correct.png" : "assets/wrong.png";
+    feedback.style.display = "block";
+
+    setTimeout(() => {
+      feedback.style.display = "none";
+    }, 2000);
+  }
+
+  /* ===============================
+     TIMER
+  =============================== */
+  const timerEl = document.getElementById("timer");
   setInterval(() => {
-    const secs = Math.floor((Date.now() - startTime) / 1000);
-    document.getElementById("timer").innerText = `Time: ${secs}s`;
+    const seconds = Math.floor((Date.now() - startTime) / 1000);
+    timerEl.innerText = `Time: ${seconds}s`;
   }, 1000);
 
-  // ==== BUILD BOARD ====
-  tiles.forEach((tile, index) => {
+  /* ===============================
+     BUILD BOARD
+  =============================== */
+  tiles.forEach(tile => {
     const card = document.createElement("div");
     card.className = "card";
     card.dataset.word = tile.word;
     card.dataset.type = tile.type;
 
-    const img = document.createElement("img");
-    img.src = tile.type === "sign"
+    // Front image
+    const front = document.createElement("img");
+    front.className = "card-front";
+    front.src = tile.type === "sign"
       ? `assets/${topic}/signs/${tile.word}.png`
       : `assets/${topic}/images/${tile.word}.png`;
 
-    card.appendChild(img);
+    // Back image (topic sign)
+    const back = document.createElement("img");
+    back.className = "card-back";
+    back.src = `assets/${topic}.png`;
+
+    card.appendChild(front);
+    card.appendChild(back);
     board.appendChild(card);
 
     card.addEventListener("click", () => flipCard(card));
   });
 
-  // ==== FLIP LOGIC ====
+  /* ===============================
+     FLIP LOGIC
+  =============================== */
   function flipCard(card) {
-    if (lockBoard || card.classList.contains("matched") || card === firstTile) return;
+    if (lockBoard) return;
+    if (card.classList.contains("flipped")) return;
+    if (card.classList.contains("matched")) return;
 
     card.classList.add("flipped");
 
-    if (!firstTile) {
-      firstTile = card;
+    if (!firstCard) {
+      firstCard = card;
       return;
     }
 
     attempts++;
-    const secondTile = card;
+    lockBoard = true;
 
     const isMatch =
-      firstTile.dataset.word === secondTile.dataset.word &&
-      firstTile.dataset.type !== secondTile.dataset.type;
+      firstCard.dataset.word === card.dataset.word &&
+      firstCard.dataset.type !== card.dataset.type;
 
     if (isMatch) {
-      firstTile.classList.add("matched");
-      secondTile.classList.add("matched");
-      firstTile = null;
-      matches++;
+      showFeedback(true);
 
-      if (matches === 15) endGame();
-    } else {
-      lockBoard = true;
       setTimeout(() => {
-        firstTile.classList.remove("flipped");
-        secondTile.classList.remove("flipped");
-        firstTile = null;
+        firstCard.classList.add("matched");
+        card.classList.add("matched");
+        firstCard = null;
         lockBoard = false;
-      }, 900);
+        matches++;
+
+        if (matches === 15) endGame();
+      }, 2000);
+
+    } else {
+      showFeedback(false);
+
+      setTimeout(() => {
+        firstCard.classList.remove("flipped");
+        card.classList.remove("flipped");
+        firstCard = null;
+        lockBoard = false;
+      }, 2000);
     }
   }
 
-  // ==== END GAME ====
+  /* ===============================
+     END GAME
+  =============================== */
   function endGame() {
     const timeTaken = Math.floor((Date.now() - startTime) / 1000);
     const percent = Math.round((15 / attempts) * 100);
@@ -109,17 +168,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("end-modal").style.display = "flex";
 
-    submitToGoogleForm(timeTaken, percent);
+    submitResults(timeTaken, percent);
   }
 
-  // ==== GOOGLE FORM ====
-  function submitToGoogleForm(time, percent) {
+  /* ===============================
+     GOOGLE FORM
+  =============================== */
+  function submitResults(time, percent) {
     const form = document.createElement("form");
     form.action = "https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse";
     form.method = "POST";
     form.target = "hidden_iframe";
 
-    const fields = {
+    const data = {
       "entry.1111111111": studentName,
       "entry.2222222222": studentClass,
       "entry.3333333333": topic,
@@ -127,11 +188,11 @@ document.addEventListener("DOMContentLoaded", () => {
       "entry.5555555555": percent
     };
 
-    for (const key in fields) {
+    for (const key in data) {
       const input = document.createElement("input");
       input.type = "hidden";
       input.name = key;
-      input.value = fields[key];
+      input.value = data[key];
       form.appendChild(input);
     }
 
@@ -139,9 +200,11 @@ document.addEventListener("DOMContentLoaded", () => {
     form.submit();
   }
 
-  window.goToHub = () => location.href = "hub.html";
+  window.goToHub = () => window.location.href = "hub.html";
 
-  // ==== UTILS ====
+  /* ===============================
+     UTILS
+  =============================== */
   function shuffle(arr) {
     return arr.sort(() => Math.random() - 0.5);
   }
