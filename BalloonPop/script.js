@@ -32,7 +32,7 @@
     const levelDisplay = document.getElementById("level");
     const thoughtBubble = document.getElementById("thought-bubble");
     const background = document.getElementById("background");
-    const mrsC = document.getElementById("mrs-c");
+    const msT = document.getElementById("ms-t");
 
     // Game state
     let score = 0;
@@ -265,10 +265,10 @@
       saveState();
     }
 
-    function animateMrsC() {
+    function animateMsT() {
       if (!mrsC) return;
-      mrsC.style.transition = "transform 0.25s ease";
-      mrsC.style.transform = "translateY(-10px)";
+      msT.style.transition = "transform 0.25s ease";
+      msT.style.transform = "translateY(-10px)";
       setTimeout(()=> mrsC.style.transform = "translateY(0)", 250);
     }
 
