@@ -266,7 +266,7 @@
     }
 
     function animateMsT() {
-      if (!mrsC) return;
+      if (!msT) return;
       msT.style.transition = "transform 0.25s ease";
       msT.style.transform = "translateY(-10px)";
       setTimeout(()=> mrsC.style.transform = "translateY(0)", 250);
