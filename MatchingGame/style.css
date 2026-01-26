@@ -29,7 +29,7 @@ html, body {
 
 .topic-item {
   display: flex;
-  width: 18vw;
+  width: 16vw;
   height: auto;
   justify-content: center;
   align-items: center;
@@ -43,7 +43,7 @@ html, body {
 
 .topic-item img {
   width: 100%;
-  min-width: 15vw;
+  min-width: 14vw;
   height: auto;
   object-fit: contain;
   border-radius: 12px;
