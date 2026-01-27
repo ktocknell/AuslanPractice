@@ -7,85 +7,66 @@
 </head>
 <body>
 
+<div id="header">
+  <div id="student-info"></div>
+  <button id="menuBtn">Back to Menu</button>
+</div>
+
 <h1>Choose a Topic</h1>
 
-    <div id="topic-grid">
-    <div class="topic-item" data-topic="alphabet">
-      <img src="assets/topics/alphabet.png" alt="Alphabet">
-    </div>
-    <div class="topic-item" data-topic="animals">
-      <img src="assets/topics/animals.png" alt="Animals">
-    </div>
-    <div class="topic-item" data-topic="colours">
-      <img src="assets/topics/colours.png" alt="Colours">
-    </div>
-    <div class="topic-item" data-topic="food">
-      <img src="assets/topics/food.png" alt="Food">
-    </div>
-    <div class="topic-item" data-topic="transport">
-      <img src="assets/topics/weather.png" alt="Weather">
-    </div>
-    <div class="topic-item" data-topic="numbers">
-      <img src="assets/topics/numbers.png" alt="Numbers">
-    </div>
-    <div class="topic-item" data-topic="clothing">
-      <img src="assets/topics/clothing.png" alt="Clothing">
-    </div>
-    <div class="topic-item" data-topic="emotions">
-      <img src="assets/topics/emotions.png" alt="Emotions">
-    </div>
+<div id="topic-grid">
+  <div class="topic-item" data-topic="alphabet">
+    <img src="assets/topics/alphabet.png" alt="Alphabet">
   </div>
+  <div class="topic-item" data-topic="animals">
+    <img src="assets/topics/animals.png" alt="Animals">
+  </div>
+  <div class="topic-item" data-topic="colours">
+    <img src="assets/topics/colours.png" alt="Colours">
+  </div>
+  <div class="topic-item" data-topic="food">
+    <img src="assets/topics/food.png" alt="Food">
+  </div>
+  <div class="topic-item" data-topic="transport">
+    <img src="assets/topics/weather.png" alt="Weather">
+  </div>
+  <div class="topic-item" data-topic="numbers">
+    <img src="assets/topics/numbers.png" alt="Numbers">
+  </div>
+  <div class="topic-item" data-topic="clothing">
+    <img src="assets/topics/clothing.png" alt="Clothing">
+  </div>
+  <div class="topic-item" data-topic="emotions">
+    <img src="assets/topics/emotions.png" alt="Emotions">
+  </div>
+</div>
 
-  <script>
-    const studentName = localStorage.getItem("studentName") || "";
-    const studentClass = localStorage.getItem("studentClass") || "";
-    const studentInfoDiv = document.getElementById("student-info");
+<script>
+  const studentName = localStorage.getItem("studentName") || "";
+  const studentClass = localStorage.getItem("studentClass") || "";
 
-    if (!studentName || !studentClass) {
-      alert("Please log in first.");
-      window.location.href = "../index.html";
-    } else {
-      studentInfoDiv.textContent = `Welcome, ${studentName} (${studentClass})`;
-    }
+  const studentInfoDiv = document.getElementById("student-info");
 
-    document.getElementById("menuBtn").addEventListener("click", () => {
-      window.location.href = "../index.html";
+  if (!studentName || !studentClass) {
+    alert("Please log in first.");
+    window.location.href = "../index.html";
+  } else {
+    studentInfoDiv.textContent = `Welcome, ${studentName} (${studentClass})`;
+  }
+
+  document.getElementById("menuBtn").addEventListener("click", () => {
+    window.location.href = "../index.html";
+  });
+
+  document.querySelectorAll(".topic-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const topic = item.dataset.topic;
+      localStorage.setItem("memoryTopic", topic);
+      window.location.href = "game.html";
     });
+  });
+</script>
 
-    document.querySelectorAll('.topic-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const topic = item.dataset.topic;
-
-        switch (topic) {
-          case 'animal':
-            window.location.href = 'animals.html';
-            break;          
-          case 'alphabet':
-            window.location.href = 'alphabet.html';
-            break;
-          case 'colours':
-            window.location.href = 'colours.html';
-            break;
-          case 'numbers':
-            window.location.href = 'numbers.html';
-            break;
-          case 'transport':
-            window.location.href = 'weather.html';
-            break;
-          case 'food':
-            window.location.href = 'food.html';
-            break;
-          case 'clothing':
-            window.location.href = 'clothing.html';
-            break;
-          case 'emotions':
-            window.location.href = 'emotion.html';
-            break;
-          default:
-            alert(`${topic.charAt(0).toUpperCase() + topic.slice(1)} is coming soon!`);
-        }
-      });
-    });
-  </script>
 </body>
+
 </html>
