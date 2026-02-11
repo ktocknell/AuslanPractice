@@ -58,11 +58,12 @@
     window.location.href = "../index.html";
   });
 
-  document.querySelectorAll(".topic-item").forEach(item => {
-    item.addEventListener("click", () => {
-      const topic = item.dataset.topic;
-      localStorage.setItem("memoryTopic", topic);
-      window.location.href = "game.html";
+document.querySelectorAll('.topic-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const topic = item.dataset.topic;
+    localStorage.setItem("memoryTopic", topic); // STORE topic correctly
+    window.location.href = "game.html";        // then go to the game
+
     });
   });
 </script>
