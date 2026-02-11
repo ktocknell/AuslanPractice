@@ -31,11 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
     numbers: ["one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen"]
   };
 
-  if (!vocab[topic]) {
-    alert("Topic not found.");
-    window.location.href = "hub.html";
-    return;
-  }
+if (!vocab[topic]) {
+  alert("Topic not found: " + topic);
+  window.location.href = "hub.html";
+  return;
+}
 
   /* ===============================
      GAME SETUP
