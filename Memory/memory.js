@@ -100,9 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // FRONT IMAGE
     const front = document.createElement("img");
     front.className = "card-front";
-    front.src = tile.type === "sign"
-      ? `assets/${topic}/signs/${tile.word}.png`
-      : `assets/${topic}/images/${tile.word}.png`;
+
+    if (tile.type === "sign") {
+      front.src = `../MatchingGame/assets/${topic}/signs/sign-${tile.word}.png`;
+    } else {
+      front.src = `../MatchingGame/assets/${topic}/clipart/${tile.word}.png`;
+    }
 
     // BACK IMAGE (topic image from topics folder)
     const back = document.createElement("img");
