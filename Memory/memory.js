@@ -96,8 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const front = document.createElement("img");
     front.className = "card-front";
     front.src = tile.type === "sign"
-      ? `assets/${topic}/signs/${tile.word}.png`
-      : `assets/${topic}/images/${tile.word}.png`;
+      ? `MatchingGame/assets/{topic}/clipart/${word}.png`
+      : `MatchingGame/assets/{topic}/signs/$sign-{word}.png`;
 
     // Back image (topic sign)
     const back = document.createElement("img");
