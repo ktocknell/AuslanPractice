@@ -37,10 +37,33 @@ if (!vocab[topic]) {
   return;
 }
 
-  /* ===============================
-     GAME SETUP
-  =============================== */
-  const words = shuffle([...vocab[topic]]).slice(0, 15);
+const difficultyModal = document.getElementById("difficulty-modal");
+const board = document.getElementById("game-board");
+
+const difficultySettings = {
+  easy: { columns: 4, rows: 3 },
+  middle: { columns: 5, rows: 4 },
+  hard: { columns: 6, rows: 4 } // no scroll version
+};
+
+document.querySelectorAll(".difficulty-options button")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      const level = button.dataset.level;
+      startGame(level);
+      difficultyModal.style.display = "none";
+    });
+  });
+
+function startGame(level) {
+
+  const { columns, rows } = difficultySettings[level];
+  const totalTiles = columns * rows;
+  const totalMatches = totalTiles / 2;
+
+  board.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+
+  const words = shuffle([...vocab[topic]]).slice(0, totalMatches);
 
   let tiles = [];
   words.forEach(word => {
@@ -50,13 +73,9 @@ if (!vocab[topic]) {
 
   tiles = shuffle(tiles);
 
-  const board = document.getElementById("game-board");
+  buildBoard(tiles, totalMatches);
+}
 
-  let firstCard = null;
-  let lockBoard = false;
-  let matches = 0;
-  let attempts = 0;
-  const startTime = Date.now();
 
   /* ===============================
      FEEDBACK IMAGE
