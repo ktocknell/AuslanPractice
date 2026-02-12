@@ -136,8 +136,17 @@ body {
   top: 20px;
   right: 20px;
   width: 100px;
+  height: 100px;
   cursor: pointer;
   z-index: 1000;
+  background: transparent;
+  border: none;
+}
+
+#menuBtn img {
+   width: 100px;
+   height: 100px;
+   object-fit: contain;
 }
 
 #menu-btn {
