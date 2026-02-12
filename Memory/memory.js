@@ -16,6 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const studentInfo = document.getElementById("student-info");
   studentInfo.innerText = `${studentName} (${studentClass}) – ${topic.toUpperCase()}`;
 
+  const finishBtn = document.getElementById("finish-btn");
+  const continueBtn = document.getElementById("continue-btn");
+  const againBtn = document.getElementById("again-btn");
+  const stopBtn = document.getElementById("stop-btn");
 
   /* ===============================
      VOCAB
@@ -236,10 +240,9 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.reload();
   };
 
-  window.goToHub = function () {
+  window.menuBtn = function () {
     window.location.href = "hub.html";
   };
-
 
   function shuffle(arr) {
     return arr.sort(() => Math.random() - 0.5);
