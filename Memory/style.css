@@ -113,7 +113,7 @@ body {
    STOP BUTTON
 =================================*/
 
-#stop-btn {
+#stopBtn {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -125,7 +125,7 @@ body {
   border: none;
 }
 
-#stop-btn img {
+#stopBtn img {
   width: 100px;
   height: 100px;
   object-fit: contain;
@@ -147,24 +147,6 @@ body {
    width: 100px;
    height: 100px;
    object-fit: contain;
-}
-
-#menu-btn {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 100px;
-  height: 100px;
-  cursor: pointer;
-  z-index: 1000;
-  background: transparent;
-  border: none;
-}
-
-#menu-btn img {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
 }
 
 /* ===============================
