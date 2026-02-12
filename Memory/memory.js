@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ===============================
      STUDENT + TOPIC
   =============================== */
+
   const studentName = localStorage.getItem("studentName") || "Unknown";
   const studentClass = localStorage.getItem("studentClass") || "Unknown";
   const topic = localStorage.getItem("memoryTopic");
@@ -13,13 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const studentInfo = document.getElementById("student-info");
-  if (studentInfo) {
-    studentInfo.innerText = `${studentName} (${studentClass})`;
-  }
+  studentInfo.innerText = `${studentName} (${studentClass}) – ${topic.toUpperCase()}`;
+
 
   /* ===============================
-     VOCAB DATA
+     VOCAB
   =============================== */
+
   const vocab = {
     alphabet: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"],
     animals: ["cat","dog","cow","horse","bird","fish","duck","pig","sheep","lion","bear","frog","snake","mouse","rabbit","tiger","goat","ant","bee","owl"],
@@ -35,55 +36,49 @@ document.addEventListener("DOMContentLoaded", () => {
   const difficultyModal = document.getElementById("difficulty-modal");
   const timerEl = document.getElementById("timer");
 
-  /* ===============================
-     GAME STATE
-  =============================== */
-  let firstCard = null;
-  let lockBoard = false;
-  let matches = 0;
-  let attempts = 0;
-  let totalMatches = 0;
-  let startTime = 0;
-  let timerInterval;
-  let currentLevel = "";
-
   const difficultySettings = {
     easy: { columns: 4, rows: 3 },
     middle: { columns: 5, rows: 4 },
     hard: { columns: 6, rows: 4 }
   };
 
-  /* ===============================
-     DIFFICULTY SELECT + HOVER
-  =============================== */
-  document.querySelectorAll(".difficulty-options img").forEach(img => {
-
-    img.style.cursor = "pointer";
-    img.style.transition = "transform 0.2s ease";
-
-    img.addEventListener("mouseenter", () => {
-      img.style.transform = "scale(1.1)";
-    });
-
-    img.addEventListener("mouseleave", () => {
-      img.style.transform = "scale(1)";
-    });
-
-    img.addEventListener("click", () => {
-      currentLevel = img.dataset.level;
-      difficultyModal.style.display = "none";
-      startGame(currentLevel);
-    });
-  });
+  let firstCard = null;
+  let lockBoard = false;
+  let matches = 0;
+  let attempts = 0;
+  let totalMatches = 0;
+  let timerInterval;
+  let startTime;
 
   /* ===============================
-     START GAME
+     BEST TIME
   =============================== */
+
+  const bestKey = `memoryBest_${studentName}_${topic}`;
+  const bestTime = localStorage.getItem(bestKey);
+
+  if (bestTime) {
+    alert(`Best Time for ${topic}: ${bestTime}s`);
+  }
+
+
+  /* ===============================
+     DIFFICULTY SELECTION
+  =============================== */
+
+  document.querySelectorAll(".difficulty-options img")
+    .forEach(img => {
+      img.addEventListener("click", () => {
+        difficultyModal.style.display = "none";
+        startGame(img.dataset.level);
+      });
+    });
+
+
   function startGame(level) {
 
     const { columns, rows } = difficultySettings[level];
-    const totalTiles = columns * rows;
-    totalMatches = totalTiles / 2;
+    totalMatches = (columns * rows) / 2;
 
     board.innerHTML = "";
     board.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
@@ -102,78 +97,54 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     tiles = shuffle(tiles);
-    buildBoard(tiles);
+
+    tiles.forEach(tile => buildCard(tile));
 
     startTime = Date.now();
-    clearInterval(timerInterval);
     timerInterval = setInterval(updateTimer, 1000);
   }
 
-  function updateTimer() {
-    const seconds = Math.floor((Date.now() - startTime) / 1000);
-    if (timerEl) timerEl.innerText = `Time: ${seconds}s`;
+
+  function buildCard(tile) {
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.word = tile.word;
+    card.dataset.type = tile.type;
+
+    const inner = document.createElement("div");
+    inner.className = "card-inner";
+
+    const front = document.createElement("img");
+    front.className = "card-front";
+
+    if (tile.type === "sign") {
+      front.src = `../MatchingGame/assets/${topic}/signs/sign-${tile.word}.png`;
+    } else {
+      front.src = `../MatchingGame/assets/${topic}/clipart/${tile.word}.png`;
+    }
+
+    const back = document.createElement("img");
+    back.className = "card-back";
+    back.src = `assets/topics/${topic}.png`;
+
+    inner.appendChild(front);
+    inner.appendChild(back);
+    card.appendChild(inner);
+    board.appendChild(card);
+
+    card.addEventListener("click", () => flipCard(card));
   }
 
-  /* ===============================
-     BUILD BOARD
-  =============================== */
-  function buildBoard(tiles) {
-
-    tiles.forEach(tile => {
-
-      const card = document.createElement("div");
-      card.className = "card";
-      card.dataset.word = tile.word;
-      card.dataset.type = tile.type;
-
-      const front = document.createElement("img");
-      front.className = "card-front";
-
-      if (tile.type === "sign") {
-        front.src = `../MatchingGame/assets/${topic}/signs/sign-${tile.word}.png`;
-      } else {
-        front.src = `../MatchingGame/assets/${topic}/clipart/${tile.word}.png`;
-      }
-
-      const back = document.createElement("img");
-      back.className = "card-back";
-      back.src = `assets/topics/${topic}.png`;
-
-      card.appendChild(front);
-      card.appendChild(back);
-      board.appendChild(card);
-
-      card.addEventListener("click", () => flipCard(card));
-    });
-  }
-
-  /* ===============================
-     FEEDBACK
-  =============================== */
-  const feedback = document.createElement("img");
-  feedback.style.position = "fixed";
-  feedback.style.top = "50%";
-  feedback.style.left = "50%";
-  feedback.style.transform = "translate(-50%, -50%)";
-  feedback.style.width = "220px";
-  feedback.style.display = "none";
-  feedback.style.zIndex = "9999";
-  document.body.appendChild(feedback);
-
-  function showFeedback(correct) {
-    feedback.src = correct ? "assets/correct.png" : "assets/wrong.png";
-    feedback.style.display = "block";
-    setTimeout(() => feedback.style.display = "none", 2000);
-  }
 
   /* ===============================
      FLIP LOGIC
   =============================== */
+
   function flipCard(card) {
 
-    if (lockBoard) return;
-    if (card.classList.contains("flipped")) return;
-    if (card.classList.contains("matched")) return;
+    if (lockBoard || card.classList.contains("flipped") || card.classList.contains("matched"))
+      return;
 
     card.classList.add("flipped");
 
@@ -190,83 +161,85 @@ document.addEventListener("DOMContentLoaded", () => {
       firstCard.dataset.type !== card.dataset.type;
 
     if (isMatch) {
-
-      showFeedback(true);
-
       setTimeout(() => {
         firstCard.classList.add("matched");
         card.classList.add("matched");
-        firstCard = null;
-        lockBoard = false;
+        resetTurn();
         matches++;
-
         if (matches === totalMatches) endGame();
-
-      }, 2000);
-
+      }, 800);
     } else {
-
-      showFeedback(false);
-
       setTimeout(() => {
         firstCard.classList.remove("flipped");
         card.classList.remove("flipped");
-        firstCard = null;
-        lockBoard = false;
-      }, 2000);
+        resetTurn();
+      }, 1000);
     }
   }
+
+  function resetTurn() {
+    firstCard = null;
+    lockBoard = false;
+  }
+
+
+  /* ===============================
+     TIMER
+  =============================== */
+
+  function updateTimer() {
+    const seconds = Math.floor((Date.now() - startTime) / 1000);
+    timerEl.innerText = `Time: ${seconds}s`;
+  }
+
 
   /* ===============================
      END GAME
   =============================== */
+
   function endGame() {
 
     clearInterval(timerInterval);
 
     const timeTaken = Math.floor((Date.now() - startTime) / 1000);
-    const percent = Math.round((matches / attempts) * 100);
+    const percent = Math.round((totalMatches / attempts) * 100);
 
-    saveBestTime(timeTaken);
+    document.getElementById("time-result").innerText = `Time: ${timeTaken}s`;
+    document.getElementById("score-result").innerText = `Accuracy: ${percent}%`;
 
-    document.getElementById("time-result").innerText =
-      `Time: ${timeTaken} seconds`;
-
-    document.getElementById("score-result").innerText =
-      `Accuracy: ${percent}%`;
-
-    document.getElementById("end-modal").style.display = "flex";
-  }
-
-  /* ===============================
-     BEST TIME STORAGE
-  =============================== */
-  function saveBestTime(time) {
-    const key = `memoryBest_${topic}_${currentLevel}`;
-    const best = localStorage.getItem(key);
-
-    if (!best || time < best) {
-      localStorage.setItem(key, time);
+    // Save best time
+    if (!bestTime || timeTaken < bestTime) {
+      localStorage.setItem(bestKey, timeTaken);
     }
+
+    // Add clap gif
+    const clap = document.createElement("img");
+    clap.src = "assets/auslan-clap.gif";
+    clap.style.width = "150px";
+    clap.style.marginTop = "15px";
+    document.getElementById("end-modal-content").appendChild(clap);
+
+    document.getElementById("end-modal").style.display = "flex";
   }
 
-  /* ===============================
-     PLAY AGAIN
-  =============================== */
-  window.playAgain = () => {
-    document.getElementById("end-modal").style.display = "none";
-    startGame(currentLevel);
-  };
 
   /* ===============================
-     STOP BUTTON
+     BUTTONS
   =============================== */
-  window.stopGame = () => {
+
+  window.stopGame = function () {
     clearInterval(timerInterval);
-    document.getElementById("end-modal").style.display = "flex";
+    window.location.href = "hub.html";
   };
 
-  window.goToHub = () => window.location.href = "hub.html";
+  window.playAgain = function () {
+    window.location.reload();
+  };
+
+  window.goToHub = function () {
+    window.location.href = "hub.html";
+  };
+
 
   function shuffle(arr) {
     return arr.sort(() => Math.random() - 0.5);
