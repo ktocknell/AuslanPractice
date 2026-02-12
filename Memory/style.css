@@ -131,6 +131,15 @@ body {
   object-fit: contain;
 }
 
+#menuBtn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 100px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
 #menu-btn {
   position: fixed;
   top: 20px;
