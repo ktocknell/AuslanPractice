@@ -8,32 +8,55 @@
 </head>
 <body>
 
+<!-- HEADER -->
 <div id="header">
   <div id="student-info"></div>
+
   <div id="timer">Time: 0s</div>
+
+  <!-- Stop button (matches other games) -->
+  <button id="stop-btn" onclick="stopGame()">Stop</button>
 </div>
-<!-- Difficulty Modal -->
+
+
+<!-- ===============================
+     DIFFICULTY MODAL
+================================ -->
 <div id="difficulty-modal">
   <div class="difficulty-content">
     <h2>Select Difficulty</h2>
 
     <div class="difficulty-options">
-      <button data-level="easy">Easy</button>
-      <button data-level="middle">Middle</button>
-      <button data-level="hard">Hard</button>
+
+      <img src="assets/easy.png" data-level="easy" alt="Easy">
+      <img src="assets/middle.png" data-level="middle" alt="Middle">
+      <img src="assets/hard.png" data-level="hard" alt="Hard">
+
     </div>
   </div>
 </div>
 
+
+<!-- ===============================
+     GAME BOARD
+================================ -->
 <div id="game-board"></div>
 
-<!-- End Modal -->
+
+<!-- ===============================
+     END MODAL
+================================ -->
 <div id="end-modal">
   <div id="end-modal-content">
     <h2>Finished!</h2>
+
     <p id="time-result"></p>
     <p id="score-result"></p>
-    <button onclick="goToHub()">Back to Topics</button>
+
+    <div style="margin-top:20px;">
+      <button onclick="playAgain()">Play Again</button>
+      <button onclick="goToHub()">Back to Topics</button>
+    </div>
   </div>
 </div>
 
