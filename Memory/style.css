@@ -68,6 +68,24 @@ body {
   border: none;
 }
 
+#stop-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.difficulty-options {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.difficulty-options img {
+  width: 120px;
+}
+
 main {
   display: flex;
   flex-direction: column;
