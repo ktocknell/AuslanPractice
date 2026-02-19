@@ -80,6 +80,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   function startGame(level) {
+    elapsedTime = 0;
+    isPaused = false;
+    currentLevel = level;
+
 
     const { columns, rows } = difficultySettings[level];
     totalMatches = (columns * rows) / 2;
@@ -297,7 +301,7 @@ if (continueBtn) continueBtn.addEventListener("click", () => {
 
 if (againBtn) againBtn.addEventListener("click", () => {
   document.getElementById("end-modal").style.display = "none";
-  startGame("easy"); // or store currentLevel if you prefer
+  startGame(currentLevel);
 });
 
 
