@@ -14,12 +14,56 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const studentInfo = document.getElementById("student-info");
-  studentInfo.innerText = `${studentName} (${studentClass}) – ${topic.toUpperCase()}`;
+  studentInfo.innerText =
+    `${studentName} (${studentClass}) – ${topic.toUpperCase()}`;
+
+  /* ===============================
+     ELEMENTS
+  =============================== */
+
+  const board = document.getElementById("game-board");
+  const difficultyModal = document.getElementById("difficulty-modal");
+  const endModal = document.getElementById("end-modal");
+  const endContent = document.getElementById("end-modal-content");
+  const timerEl = document.getElementById("timer");
 
   const finishBtn = document.getElementById("finish-btn");
   const continueBtn = document.getElementById("continue-btn");
   const againBtn = document.getElementById("again-btn");
   const stopBtn = document.getElementById("stop-btn");
+
+  /* ===============================
+     GAME STATE
+  =============================== */
+
+  let firstCard = null;
+  let lockBoard = false;
+  let matches = 0;
+  let attempts = 0;
+  let totalMatches = 0;
+
+  let currentLevel = null;
+
+  let timerInterval = null;
+  let startTime = 0;
+  let elapsedTime = 0;
+  let isPaused = false;
+
+  /* ===============================
+     BEST TIME
+  =============================== */
+
+  const bestKey = `memoryBest_${studentName}_${topic}`;
+  const bestDisplay = document.getElementById("best-time-display");
+
+  function showBestTime() {
+    const best = localStorage.getItem(bestKey);
+    if (best && bestDisplay) {
+      bestDisplay.innerText = `Best Time: ${best}s`;
+    }
+  }
+
+  showBestTime();
 
   /* ===============================
      VOCAB
@@ -36,35 +80,11 @@ document.addEventListener("DOMContentLoaded", () => {
     numbers: ["one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen"]
   };
 
-  const board = document.getElementById("game-board");
-  const difficultyModal = document.getElementById("difficulty-modal");
-  const timerEl = document.getElementById("timer");
-
   const difficultySettings = {
     easy: { columns: 4, rows: 3 },
     middle: { columns: 5, rows: 4 },
     hard: { columns: 6, rows: 4 }
   };
-
-  let firstCard = null;
-  let lockBoard = false;
-  let matches = 0;
-  let attempts = 0;
-  let totalMatches = 0;
-  let timerInterval;
-  let startTime;
-
-  /* ===============================
-     BEST TIME
-  =============================== */
-
-  const bestKey = `memoryBest_${studentName}_${topic}`;
-  const bestTime = localStorage.getItem(bestKey);
-
-  if (bestTime) {
-    alert(`Best Time for ${topic}: ${bestTime}s`);
-  }
-
 
   /* ===============================
      DIFFICULTY SELECTION
@@ -78,12 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+  /* ===============================
+     START GAME
+  =============================== */
 
   function startGame(level) {
-    elapsedTime = 0;
-    isPaused = false;
-    currentLevel = level;
 
+    currentLevel = level;
 
     const { columns, rows } = difficultySettings[level];
     totalMatches = (columns * rows) / 2;
@@ -95,6 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
     attempts = 0;
     firstCard = null;
     lockBoard = false;
+    isPaused = false;
+    elapsedTime = 0;
 
     const words = shuffle([...vocab[topic]]).slice(0, totalMatches);
 
@@ -104,14 +127,15 @@ document.addEventListener("DOMContentLoaded", () => {
       tiles.push({ word, type: "image" });
     });
 
-    tiles = shuffle(tiles);
-
-    tiles.forEach(tile => buildCard(tile));
+    shuffle(tiles).forEach(tile => buildCard(tile));
 
     startTime = Date.now();
     timerInterval = setInterval(updateTimer, 1000);
   }
 
+  /* ===============================
+     BUILD CARD
+  =============================== */
 
   function buildCard(tile) {
 
@@ -144,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
     card.addEventListener("click", () => flipCard(card));
   }
 
-
   /* ===============================
      FLIP LOGIC
   =============================== */
@@ -175,13 +198,13 @@ document.addEventListener("DOMContentLoaded", () => {
         resetTurn();
         matches++;
         if (matches === totalMatches) endGame();
-      }, 800);
+      }, 600);
     } else {
       setTimeout(() => {
         firstCard.classList.remove("flipped");
         card.classList.remove("flipped");
         resetTurn();
-      }, 1000);
+      }, 900);
     }
   }
 
@@ -190,16 +213,28 @@ document.addEventListener("DOMContentLoaded", () => {
     lockBoard = false;
   }
 
-
   /* ===============================
      TIMER
   =============================== */
 
   function updateTimer() {
-    const seconds = Math.floor((Date.now() - startTime) / 1000);
-    timerEl.innerText = `Time: ${seconds}s`;
+    elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+    timerEl.innerText = `Time: ${elapsedTime}s`;
   }
 
+  function pauseGame() {
+    clearInterval(timerInterval);
+    lockBoard = true;
+    isPaused = true;
+  }
+
+  function resumeGame() {
+    if (!isPaused) return;
+    startTime = Date.now() - (elapsedTime * 1000);
+    timerInterval = setInterval(updateTimer, 1000);
+    lockBoard = false;
+    isPaused = false;
+  }
 
   /* ===============================
      END GAME
@@ -209,106 +244,72 @@ document.addEventListener("DOMContentLoaded", () => {
 
     clearInterval(timerInterval);
 
-    const timeTaken = Math.floor((Date.now() - startTime) / 1000);
-    const percent = Math.round((totalMatches / attempts) * 100);
+    const timeTaken = elapsedTime;
 
-    document.getElementById("time-result").innerText = `Time: ${timeTaken}s`;
-    document.getElementById("score-result").innerText = `Accuracy: ${percent}%`;
+    const percent = attempts === 0
+      ? 0
+      : Math.round((matches / attempts) * 100);
 
-    // Save best time
-    if (!bestTime || timeTaken < bestTime) {
+    document.getElementById("time-result").innerText =
+      `Time: ${timeTaken}s`;
+
+    document.getElementById("score-result").innerText =
+      `Accuracy: ${percent}%`;
+
+    // Remove old clap
+    const oldClap = endContent.querySelector(".clap-gif");
+    if (oldClap) oldClap.remove();
+
+    // Check record
+    let previousBest = parseInt(localStorage.getItem(bestKey));
+    let isNewRecord = false;
+
+    if (!previousBest || timeTaken < previousBest) {
       localStorage.setItem(bestKey, timeTaken);
+      isNewRecord = true;
     }
 
-    // Add clap gif
-    const clap = document.createElement("img");
-    clap.src = "assets/auslan-clap.gif";
-    clap.style.width = "150px";
-    clap.style.marginTop = "15px";
-    document.getElementById("end-modal-content").appendChild(clap);
+    if (isNewRecord) {
+      const clap = document.createElement("img");
+      clap.src = "assets/auslan-clap.gif";
+      clap.classList.add("clap-gif");
+      clap.style.width = "150px";
+      clap.style.marginTop = "15px";
+      endContent.appendChild(clap);
+    }
 
-    document.getElementById("end-modal").style.display = "flex";
+    endModal.style.display = "flex";
   }
-
 
   /* ===============================
      BUTTONS
   =============================== */
 
- /* ===============================
-   PAUSE / STOP SYSTEM
-================================ */
+  if (stopBtn) stopBtn.addEventListener("click", () => {
+    pauseGame();
+    endGame();
+  });
 
-let isPaused = false;
+  if (continueBtn) continueBtn.addEventListener("click", () => {
+    endModal.style.display = "none";
+    resumeGame();
+  });
 
-function pauseGame() {
-  clearInterval(timerInterval);
-  lockBoard = true;
-  isPaused = true;
-}
+  if (againBtn) againBtn.addEventListener("click", () => {
+    endModal.style.display = "none";
+    startGame(currentLevel);
+  });
 
-function resumeGame() {
-  if (!isPaused) return;
-  startTime = Date.now() - (elapsedTime * 1000);
-  timerInterval = setInterval(updateTimer, 1000);
-  lockBoard = false;
-  isPaused = false;
-}
+  if (finishBtn) finishBtn.addEventListener("click", () => {
+    window.location.href = "hub.html";
+  });
 
-let elapsedTime = 0;
+  /* ===============================
+     SHUFFLE
+  =============================== */
 
-function updateTimer() {
-  elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-  timerEl.innerText = `Time: ${elapsedTime}s`;
-}
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
 
-/* ===============================
-   STOP BUTTON
-================================ */
-
-if (stopBtn) stopBtn.addEventListener("click", () => {
-
-  pauseGame();
-
-  const percent = attempts === 0
-    ? 0
-    : Math.round((matches / attempts) * 100);
-
-  document.getElementById("time-result").innerText =
-    `Time: ${elapsedTime}s`;
-
-  document.getElementById("score-result").innerText =
-    `Accuracy: ${percent}%`;
-
-  document.getElementById("end-modal").style.display = "flex";
-
-});
-
-
-/* ===============================
-   CONTINUE
-================================ */
-
-if (continueBtn) continueBtn.addEventListener("click", () => {
-  document.getElementById("end-modal").style.display = "none";
-  resumeGame();
-});
-
-
-/* ===============================
-   AGAIN (Restart Same Topic)
-================================ */
-
-if (againBtn) againBtn.addEventListener("click", () => {
-  document.getElementById("end-modal").style.display = "none";
-  startGame(currentLevel);
-});
-
-
-/* ===============================
-   FINISH (Back to Hub)
-================================ */
-
-if (finishBtn) finishBtn.addEventListener("click", () => {
-  window.location.href = "hub.html";
 });
