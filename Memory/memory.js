@@ -231,21 +231,80 @@ document.addEventListener("DOMContentLoaded", () => {
      BUTTONS
   =============================== */
 
-  window.stopGame = function () {
-    clearInterval(timerInterval);
-    window.location.href = "hub.html";
-  };
+ /* ===============================
+   PAUSE / STOP SYSTEM
+================================ */
 
-  window.playAgain = function () {
-    window.location.reload();
-  };
+let isPaused = false;
 
-  window.menuBtn = function () {
-    window.location.href = "hub.html";
-  };
+function pauseGame() {
+  clearInterval(timerInterval);
+  lockBoard = true;
+  isPaused = true;
+}
 
-  function shuffle(arr) {
-    return arr.sort(() => Math.random() - 0.5);
-  }
+function resumeGame() {
+  if (!isPaused) return;
+  startTime = Date.now() - (elapsedTime * 1000);
+  timerInterval = setInterval(updateTimer, 1000);
+  lockBoard = false;
+  isPaused = false;
+}
 
+let elapsedTime = 0;
+
+function updateTimer() {
+  elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+  timerEl.innerText = `Time: ${elapsedTime}s`;
+}
+
+/* ===============================
+   STOP BUTTON
+================================ */
+
+if (stopBtn) stopBtn.addEventListener("click", () => {
+
+  pauseGame();
+
+  const percent = attempts === 0
+    ? 0
+    : Math.round((matches / attempts) * 100);
+
+  document.getElementById("time-result").innerText =
+    `Time: ${elapsedTime}s`;
+
+  document.getElementById("score-result").innerText =
+    `Accuracy: ${percent}%`;
+
+  document.getElementById("end-modal").style.display = "flex";
+
+});
+
+
+/* ===============================
+   CONTINUE
+================================ */
+
+if (continueBtn) continueBtn.addEventListener("click", () => {
+  document.getElementById("end-modal").style.display = "none";
+  resumeGame();
+});
+
+
+/* ===============================
+   AGAIN (Restart Same Topic)
+================================ */
+
+if (againBtn) againBtn.addEventListener("click", () => {
+  document.getElementById("end-modal").style.display = "none";
+  startGame("easy"); // or store currentLevel if you prefer
+});
+
+
+/* ===============================
+   FINISH (Back to Hub)
+================================ */
+
+if (finishBtn) finishBtn.addEventListener("click", () => {
+  window.location.href = "hub.html";
 });
